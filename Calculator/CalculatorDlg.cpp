@@ -18,7 +18,8 @@
 
 CCalculatorDlg::CCalculatorDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CALCULATOR_DIALOG, pParent)
-	, m_result(_T(""))
+	, m_result(_T("0"))
+	, m_history(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -47,6 +48,8 @@ void CCalculatorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_POINT, m_buttonPoint);
 	DDX_Control(pDX, IDC_BUTTON_NEGATIVE_POSITIVE, m_buttonTogglePositiveNegative);
 	DDX_Text(pDX, IDC_EDIT_RESULT, m_result);
+	DDX_Control(pDX, IDC_EDIT_RESULT, m_resultCtl);
+	DDX_Text(pDX, IDC_EDIT_HISTORY, m_history);
 }
 
 BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
@@ -129,7 +132,15 @@ HCURSOR CCalculatorDlg::OnQueryDragIcon()
 
 void CCalculatorDlg::appendDigit(char digit)
 {
-	m_result += digit;
+	if (ispreviousOperation)
+	{
+		m_result = digit;
+		ispreviousOperation = false;
+	}
+	else
+	{
+		m_result += digit;
+	}
 	UpdateData(false);
 }
 
@@ -195,7 +206,6 @@ void CCalculatorDlg::OnBnClickedButton9()
 
 void CCalculatorDlg::OnBnClickedButtonDivide()
 {
-	op1 = atof(m_result);
 }
 
 
@@ -207,19 +217,51 @@ void CCalculatorDlg::OnBnClickedButtonMultiply()
 
 void CCalculatorDlg::OnBnClickedButtonMinus()
 {
-	// TODO: Add your control notification handler code here
+	if (ispreviousOperation)
+	{
+		m_history.Trim('+');
+	}
+	else
+	{
+		m_resultCtl.GetWindowTextW(str);
+		m_history += str;
+		m_history += "-";
+		leftExpression op= _ttof(str);
+		m_result.Format(_T("%f"), leftExpression);
+		UpdateData(false);
+		ispreviousOperation = true;
+	}
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonPlus()
-{
-	// TODO: Add your control notification handler code here
+{	
+	m_resultCtl.GetWindowTextW(str);
+	m_history += str;
+	m_history += "+";
+	leftExpression += _ttof(str);
+	m_result.Format(_T("%f"), leftExpression);
+	UpdateData(false);
+	ispreviousOperation = true;
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonEquals()
 {
-	// TODO: Add your control notification handler code here
+	/*if (opcode == "plus")
+	{
+		m_resultCtl.GetWindowTextW(str);
+		op2 = _ttof(str);
+		m_result.Format(_T("%f"), op1+op2);
+		UpdateData(false);
+	}
+	else if (opcode == "minus")
+	{
+		m_resultCtl.GetWindowTextW(str);
+		op2 = _ttof(str);
+		m_result.Format(_T("%f"), op1 - op2);
+		UpdateData(false);
+	}*/
 }
 
 

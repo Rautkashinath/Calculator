@@ -76,7 +76,12 @@ public:
 
 private:
 	CString m_result;
+	CString m_history;
+	CString str = _T("");
+	bool ispreviousOperation = false;
+	double leftExpression = 0;
+
 	afx_msg void appendDigit(char digit);
-	CString opcode;
-	double op1,op2;
+public:
+	CEdit m_resultCtl;
 };
