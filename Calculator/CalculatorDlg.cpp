@@ -20,6 +20,11 @@ CCalculatorDlg::CCalculatorDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CALCULATOR_DIALOG, pParent)
 	, m_result(_T("0"))
 	, m_history(_T(""))
+	, str(_T(""))
+	, isPreviousOperator(true)
+	, reset(true)
+	, isEquals(false)
+	, leftExpression(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -130,138 +135,184 @@ HCURSOR CCalculatorDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CCalculatorDlg::appendDigit(char digit)
+void CCalculatorDlg::CalculateResult(char op)
 {
-	if (ispreviousOperation)
+	if (isPreviousOperator)
 	{
-		m_result = digit;
-		ispreviousOperation = false;
+		if (m_history == "")
+		{
+			m_resultCtl.GetWindowTextW(str);
+			m_history = str;
+		}
+		m_history.Trim(lastOperator);
+		m_history += op;
 	}
 	else
 	{
-		m_result += digit;
+		if (lastOperator == '\0')
+		{
+			lastOperator = op;
+		}
+		m_resultCtl.GetWindowTextW(str);
+		m_history += str;
+		m_history += op;
+		SetOperationResult(lastOperator,str);
+		m_result.Format(_T("%f"), leftExpression);
+		isPreviousOperator = true;
+	}
+	lastOperator = op;
+	UpdateData(false);
+}
+
+void CCalculatorDlg::SetOperationResult(char op, CString str)
+{
+	if (reset == true)
+	{
+		leftExpression = _ttof(str);
+		reset = false;
+	}
+	else
+	{
+		switch (op)
+		{
+		case '+':
+			leftExpression += _ttof(str);
+			break;
+		case '-':
+			leftExpression -= _ttof(str);
+			break;
+		case '*':
+			leftExpression *= _ttof(str);
+			break;
+		case '/':
+			leftExpression /= _ttof(str);
+			break;
+		}
+	}
+}
+void CCalculatorDlg::AppendDigit(char digit)
+{
+	if (isPreviousOperator || isEquals)
+	{
+		m_result = digit;
+		isPreviousOperator = false;
+		isEquals = false;
+	}
+	else
+	{
+		if (!(m_result == "0" && digit == '0'))
+		{
+			if (m_result == "0")
+				m_result = "";
+			m_result += digit;
+		}
 	}
 	UpdateData(false);
 }
 
 void CCalculatorDlg::OnBnClickedButton0()
 {
-	appendDigit('0');
+	AppendDigit('0');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton1()
 {
-	appendDigit('1');
+	AppendDigit('1');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton2()
 {
-	appendDigit('2');
+	AppendDigit('2');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton3()
 {
-	appendDigit('3');
+	AppendDigit('3');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton4()
 {
-	appendDigit('4');
+	AppendDigit('4');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton5()
 {
-	appendDigit('5');
+	AppendDigit('5');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton6()
 {
-	appendDigit('6');
+	AppendDigit('6');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton7()
 {
-	appendDigit('7');
+	AppendDigit('7');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton8()
 {
-	appendDigit('8');
+	AppendDigit('8');
 }
 
 
 void CCalculatorDlg::OnBnClickedButton9()
 {
-	appendDigit('9');
+	AppendDigit('9');
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonDivide()
 {
+	CalculateResult('/');
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonMultiply()
 {
-	// TODO: Add your control notification handler code here
+	CalculateResult('*');
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonMinus()
 {
-	if (ispreviousOperation)
-	{
-		m_history.Trim('+');
-	}
-	else
-	{
-		m_resultCtl.GetWindowTextW(str);
-		m_history += str;
-		m_history += "-";
-		leftExpression op= _ttof(str);
-		m_result.Format(_T("%f"), leftExpression);
-		UpdateData(false);
-		ispreviousOperation = true;
-	}
+	CalculateResult('-');
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonPlus()
-{	
-	m_resultCtl.GetWindowTextW(str);
+{
+	CalculateResult('+');
+	/*m_resultCtl.GetWindowTextW(str);
 	m_history += str;
 	m_history += "+";
 	leftExpression += _ttof(str);
 	m_result.Format(_T("%f"), leftExpression);
 	UpdateData(false);
-	ispreviousOperation = true;
+	ispreviousOperation = true;*/
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonEquals()
 {
-	/*if (opcode == "plus")
-	{
-		m_resultCtl.GetWindowTextW(str);
-		op2 = _ttof(str);
-		m_result.Format(_T("%f"), op1+op2);
-		UpdateData(false);
-	}
-	else if (opcode == "minus")
-	{
-		m_resultCtl.GetWindowTextW(str);
-		op2 = _ttof(str);
-		m_result.Format(_T("%f"), op1 - op2);
-		UpdateData(false);
-	}*/
+	m_resultCtl.GetWindowTextW(str);
+	m_history = "";
+	SetOperationResult(lastOperator, str);
+	m_result.Format(_T("%f"), leftExpression);
+	leftExpression = 0;
+	isPreviousOperator = false;
+	reset = true;
+	isEquals = true;
+	UpdateData(false);
+
 }
 
 
@@ -273,7 +324,8 @@ void CCalculatorDlg::OnBnClickedButtonNegativePositive()
 
 void CCalculatorDlg::OnBnClickedButtonPoint()
 {
-	// TODO: Add your control notification handler code here
+	if(m_result.Find('.')<0)
+		AppendDigit('.');
 }
 
 
@@ -285,7 +337,12 @@ void CCalculatorDlg::OnBnClickedButtonPercent()
 
 void CCalculatorDlg::OnBnClickedButtonClear()
 {
-	// TODO: Add your control notification handler code here
+	m_result = "0";
+	m_history = "";
+	leftExpression = 0;
+	lastOperator = '\0';
+	reset = true;
+	UpdateData(false);
 }
 
 

@@ -77,11 +77,16 @@ public:
 private:
 	CString m_result;
 	CString m_history;
-	CString str = _T("");
-	bool ispreviousOperation = false;
-	double leftExpression = 0;
+	char lastOperator;
+	CString str;
+	bool isPreviousOperator;
+	bool reset;
+	bool isEquals;
+	double leftExpression;
 
-	afx_msg void appendDigit(char digit);
+	afx_msg void AppendDigit(char);
+	afx_msg void CalculateResult(char);
+	afx_msg void SetOperationResult(char,CString);
 public:
 	CEdit m_resultCtl;
 };
