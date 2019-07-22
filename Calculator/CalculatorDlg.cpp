@@ -324,7 +324,7 @@ void CCalculatorDlg::OnBnClickedButtonNegativePositive()
 
 void CCalculatorDlg::OnBnClickedButtonPoint()
 {
-	if(m_result.Find('.')<0)
+	if (m_result.Find('.') < 0)
 		AppendDigit('.');
 }
 
