@@ -135,6 +135,15 @@ HCURSOR CCalculatorDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CCalculatorDlg::FormatResult()
+{
+	double fractionPart = 0.0;
+	fractionPart = leftExpression - (int)leftExpression;
+	if (fractionPart > 0)
+		m_result.Format(_T("%.2f"), leftExpression);
+	else
+		m_result.Format(_T("%d"), (int)leftExpression);
+}
 void CCalculatorDlg::CalculateResult(char op)
 {
 	if (isPreviousOperator)
@@ -161,6 +170,7 @@ void CCalculatorDlg::CalculateResult(char op)
 		isPreviousOperator = true;
 	}
 	lastOperator = op;
+	FormatResult();
 	UpdateData(false);
 }
 
@@ -291,13 +301,6 @@ void CCalculatorDlg::OnBnClickedButtonMinus()
 void CCalculatorDlg::OnBnClickedButtonPlus()
 {
 	CalculateResult('+');
-	/*m_resultCtl.GetWindowTextW(str);
-	m_history += str;
-	m_history += "+";
-	leftExpression += _ttof(str);
-	m_result.Format(_T("%f"), leftExpression);
-	UpdateData(false);
-	ispreviousOperation = true;*/
 }
 
 
@@ -307,46 +310,74 @@ void CCalculatorDlg::OnBnClickedButtonEquals()
 	m_history = "";
 	SetOperationResult(lastOperator, str);
 	m_result.Format(_T("%f"), leftExpression);
-	leftExpression = 0;
+	FormatResult();
 	isPreviousOperator = false;
 	reset = true;
 	isEquals = true;
+	leftExpression = 0;
 	UpdateData(false);
-
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonNegativePositive()
 {
-	// TODO: Add your control notification handler code here
+	m_resultCtl.GetWindowTextW(str);
+	if (_ttof(str) < 0)
+	{
+		m_result.Remove('-');
+	}
+	else if(str!='0')
+	{
+		m_result = '-' + m_result;
+	}
+	UpdateData(false);
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonPoint()
 {
+	//appen point if already not in number
 	if (m_result.Find('.') < 0)
+	{
 		AppendDigit('.');
+	}
+		
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonPercent()
 {
-	// TODO: Add your control notification handler code here
+	m_resultCtl.GetWindowTextW(str);
+	double perc = (leftExpression / 100) * _ttof(str);
+	if((perc-(int)perc)>0)
+		m_result.Format(_T("%.2f"), perc);
+	else
+		m_result.Format(_T("%d"), (int)perc);
+	UpdateData(false);
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonClear()
 {
+	//reset all
 	m_result = "0";
 	m_history = "";
 	leftExpression = 0;
 	lastOperator = '\0';
 	reset = true;
+	isEquals = false;
 	UpdateData(false);
 }
 
 
 void CCalculatorDlg::OnBnClickedButtonBack()
 {
-	// TODO: Add your control notification handler code here
+	m_resultCtl.GetWindowTextW(str);
+	if (m_result.GetLength() == 1)
+		m_result = "0";
+	else
+	{
+		m_result.Delete(str.GetLength() - 1);
+	}
+	UpdateData(false);
 }

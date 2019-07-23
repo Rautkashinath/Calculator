@@ -83,10 +83,11 @@ private:
 	bool reset;
 	bool isEquals;
 	double leftExpression;
-
+	
 	afx_msg void AppendDigit(char);
 	afx_msg void CalculateResult(char);
 	afx_msg void SetOperationResult(char,CString);
+	afx_msg void FormatResult();
 public:
 	CEdit m_resultCtl;
 };
