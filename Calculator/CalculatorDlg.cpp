@@ -139,7 +139,7 @@ void CCalculatorDlg::FormatResult()
 {
 	double fractionPart = 0.0;
 	fractionPart = leftExpression - (int)leftExpression;
-	if (fractionPart > 0)
+	if (fractionPart != 0)
 		m_result.Format(_T("%.2f"), leftExpression);
 	else
 		m_result.Format(_T("%d"), (int)leftExpression);
@@ -349,7 +349,7 @@ void CCalculatorDlg::OnBnClickedButtonPercent()
 {
 	m_resultCtl.GetWindowTextW(str);
 	double perc = (leftExpression / 100) * _ttof(str);
-	if((perc-(int)perc)>0)
+	if((perc-(int)perc)!=0)
 		m_result.Format(_T("%.2f"), perc);
 	else
 		m_result.Format(_T("%d"), (int)perc);
